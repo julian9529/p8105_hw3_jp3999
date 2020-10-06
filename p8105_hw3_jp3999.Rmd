@@ -1,0 +1,18 @@
+---
+title: "Homework 3"
+output: github_document
+---
+
+```{r setup}
+library(tidyverse)
+library(patchwork)
+```
+
+## Problem 1 
+
+```{r}
+library(p8105.datasets)
+data("instacart")
+```
+The dataset contains information on. The variables `r variable.names(instacart)` are included in this data set. 
+This dataset contains `r nrow(instacart)` rows and `r ncol(instacart)` columns. 
