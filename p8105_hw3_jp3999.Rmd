@@ -84,3 +84,32 @@ instacart %>%
 	)
 ```
 
+## Problem 2
+
+```{r}
+accel_df = 
+read.csv("./data/accel_data.csv") %>%
+    pivot_longer(
+      activity.1:activity.1440, 
+      names_to = "activity_minute", 
+      values_to ="activity_count"
+      ) %>%
+  mutate(day = recode(day, Sunday = "Weekend", Saturday = "Weekend", Friday = "Weekday",Thursday = "Weekday", Wednesday = "Weekday", Tuesday = "Weekday", Monday = "Weekday")) %>%
+  
+  mutate(activity_minute = as.numeric(activity_minute)) 
+
+
+```
+
+This data set contains 4 numeric and 1 character variable. 
+
+```{r}
+accel_df  %>%
+  group_by(day, day_id)
+summarize(total_activity = sum(activity_count)) %>%
+  mutate(rank = min_rank(desc(day_id)) %>%
+           arrange(day_id, rank) %>%
+           knitr::kable()
+  
+```
+
