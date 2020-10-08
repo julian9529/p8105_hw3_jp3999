@@ -94,9 +94,11 @@ read.csv("./data/accel_data.csv") %>%
       names_to = "activity_minute", 
       values_to ="activity_count"
       ) %>%
-  mutate(day = recode(day, Sunday = "Weekend", Saturday = "Weekend", Friday = "Weekday",Thursday = "Weekday", Wednesday = "Weekday", Tuesday = "Weekday", Monday = "Weekday")) %>%
+   
+  mutate(weekend_weekday = day) %>%
   
-  mutate(activity_minute = as.numeric(activity_minute)) 
+   mutate(weekend_weekday = recode(weekend_weekday, Sunday = "Weekend", Saturday = "Weekend", Friday = "Weekday",Thursday = "Weekday", Wednesday = "Weekday", Tuesday = "Weekday", Monday = "Weekday")) %>%
+  mutate_at(vars(activity_minute), as.factor) 
 
 
 ```
@@ -105,11 +107,10 @@ This data set contains 4 numeric and 1 character variable.
 
 ```{r}
 accel_df  %>%
-  group_by(day, day_id)
-summarize(total_activity = sum(activity_count)) %>%
-  mutate(rank = min_rank(desc(day_id)) %>%
-           arrange(day_id, rank) %>%
-           knitr::kable()
-  
+  group_by(day, day_id) %>%
+  mutate (total_activity = sum(activity_count)) %>%
+  	knitr::kable()
+
+
 ```
 
