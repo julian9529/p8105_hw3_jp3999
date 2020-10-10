@@ -3,9 +3,12 @@ title: "Homework 3"
 output: github_document
 ---
 
-```{r setup}
+```{r}
 library(tidyverse)
 library(patchwork)
+```
+
+```{r setup}
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -84,33 +87,91 @@ instacart %>%
 	)
 ```
 
+
+
 ## Problem 2
 
 ```{r}
 accel_df = 
 read.csv("./data/accel_data.csv") %>%
+  janitor::clean_names() %>%
     pivot_longer(
-      activity.1:activity.1440, 
+      activity_1:activity_1440, 
       names_to = "activity_minute", 
+      names_prefix = "activity_", 
       values_to ="activity_count"
       ) %>%
-   
-  mutate(weekend_weekday = day) %>%
   
-   mutate(weekend_weekday = recode(weekend_weekday, Sunday = "Weekend", Saturday = "Weekend", Friday = "Weekday",Thursday = "Weekday", Wednesday = "Weekday", Tuesday = "Weekday", Monday = "Weekday")) %>%
-  mutate_at(vars(activity_minute), as.factor) 
+mutate (
+  day = factor(day), 
+  day = forcats::fct_relevel(day, c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))) %>%
+    
+ mutate(weekend_weekday=day) %>%
+
+mutate(weekend_weekday = recode(weekend_weekday, Sunday = "Weekend", Saturday = "Weekend", Friday = "Weekday",Thursday = "Weekday", Wednesday = "Weekday", Tuesday = "Weekday", Monday = "Weekday")) %>%
+  mutate(
+     activity_minute = as.numeric(activity_minute))
 
 
 ```
+
 
 This data set contains 4 numeric and 1 character variable. 
 
 ```{r}
 accel_df  %>%
-  group_by(day, day_id) %>%
-  mutate (total_activity = sum(activity_count)) %>%
+  group_by(day, week) %>%
+  summarize (total_activity = sum(activity_count)) %>%
+  pivot_wider(
+    names_from = day, 
+    values_from = total_activity
+  )  %>%
   	knitr::kable()
 
 
 ```
+
+
+```{r}
+accel_df  %>%
+  ggplot(aes(x= activity_minute, y = activity_count, group = day_id,color=day)) + 
+  geom_line(alpha = .2) +
+  geom_smooth(aes(group = day)) 
+
+```
+
+## Problem 3
+
+```{r}
+library(p8105.datasets)
+data("ny_noaa")
+```
+
+```{r}
+ny_noaa = ny_noaa %>%
+  separate(date, into = c("year", "month", "day"), convert = TRUE)%>%
+  mutate(prcp = as.numeric(prcp), 
+         snow = as.numeric(snow), 
+          snwd = as.numeric(snwd), 
+    tmin = as.numeric(tmin), 
+   tmax = as.numeric(tmax),
+   month = as.factor(month)
+   ) 
+```
+
+The most common observed value for snowfall is `r summarize(ny_noaa, mean(snow))` 
+
+```{r}
+ny_noaa = ny_noaa  %>%
+  group_by(id, year, month) %>%
+  filter(month == 1|month == 7 ) %>%
+  summarize(mean_tmax = mean(tmax, na.rm = TRUE, color=id)) %>%
+  ggplot(aes(x = year, y = mean_tmax, group = id)) + 
+  geom_point() +
+  geom_path (alpha =.05, size = .3)+
+  facet_grid(~month) +
+   theme(legend.position = "bottom")
+
+```
+
 
