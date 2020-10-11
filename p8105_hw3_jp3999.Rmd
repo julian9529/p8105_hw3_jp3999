@@ -116,7 +116,7 @@ mutate(weekend_weekday = recode(weekend_weekday, Sunday = "Weekend", Saturday = 
 ```
 
 
-This data set contains 4 numeric and 1 character variable. 
+This data set contains `r nrow(accel_df)` rows and `r ncol(accel_df)` columns. The variables contained are `r variable.names(accel_df)`
 
 ```{r}
 accel_df  %>%
@@ -131,6 +131,9 @@ accel_df  %>%
 
 ```
 
+This table is a bit difficult to see if any trends are apparent, it seems that Saturday has some decreased activity. Friday and Sunday seem to have some increased activity! 
+
+The graph is showing the activity minutes by day of the week which are color coded. The trends aparent are that the activity minutes for all days of the week except Friday and Sunday are preety stable over time. Friday and Sunday are  are two days that have increased activity during the ~750 minute for Sunday and ~1200 for Friday. 
 
 ```{r}
 accel_df  %>%
