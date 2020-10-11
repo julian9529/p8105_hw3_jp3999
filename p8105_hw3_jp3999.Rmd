@@ -148,30 +148,48 @@ data("ny_noaa")
 ```
 
 ```{r}
-ny_noaa = ny_noaa %>%
-  separate(date, into = c("year", "month", "day"), convert = TRUE)%>%
-  mutate(prcp = as.numeric(prcp), 
-         snow = as.numeric(snow), 
-          snwd = as.numeric(snwd), 
+
+ny_noaa_df = ny_noaa%>%
+  separate(date, into = c("year", "month", "day"), convert = TRUE) %>%
+  mutate(
     tmin = as.numeric(tmin), 
-   tmax = as.numeric(tmax),
-   month = as.factor(month)
-   ) 
+    prcp = as.numeric(prcp), 
+    tmax = as.numeric(tmax),
+    tmin = tmin / 10, 
+    tmax = tmax / 10, 
+    prcp = prcp / 10,
+    month = month.abb[as.factor(month)],
+   )
 ```
 
 The most common observed value for snowfall is `r summarize(ny_noaa, mean(snow))` 
 
 ```{r}
-ny_noaa = ny_noaa  %>%
+ny_noaa_df %>%
+  filter(month == "Jan" |month == "Jul" ) %>%
   group_by(id, year, month) %>%
-  filter(month == 1|month == 7 ) %>%
-  summarize(mean_tmax = mean(tmax, na.rm = TRUE, color=id)) %>%
+  summarize(mean_tmax = mean(tmax, na.rm = TRUE)) %>%
   ggplot(aes(x = year, y = mean_tmax, group = id)) + 
   geom_point() +
   geom_path (alpha =.05, size = .3)+
-  facet_grid(~month) +
+  facet_grid(.~month) +
    theme(legend.position = "bottom")
 
 ```
 
+```{r}
+tmin_max_df = 
+ggplot(ny_noaa_df, aes(x=tmin, y = tmax)) +
+geom_hex()
+
+snow_df = 
+  ny_noaa_df %>%
+  drop_na(snow) %>%
+  filter(snow > 0 & snow <100) %>%
+  ggplot(aes(x=year, y =snow, fill =year)) + 
+  geom_violin() +
+   theme(legend.position = "bottom")
+
+tmin_max_df + snow_df
+```
 
